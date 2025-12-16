@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.basesyntax.dao.StorageDao;
+import core.basesyntax.dao.StorageDaoImpl;
 import core.basesyntax.db.Storage;
 import core.basesyntax.model.User;
 import core.basesyntax.service.exceptions.InvalidRegistrationDataException;
@@ -155,7 +157,9 @@ class RegistrationServiceImplTest {
         user.setPassword(MIN_VALID_PASS);
         user.setAge(18);
 
-        User result = registrationService.register(user);
+        StorageDao storageDao = new StorageDaoImpl();
+
+        User result = storageDao.add(user);
 
         assertNotNull(result);
         assertEquals(user, result, "Returned user must be the same object that was passed.");
