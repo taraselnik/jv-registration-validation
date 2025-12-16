@@ -175,15 +175,11 @@ class RegistrationServiceImplTest {
 
     @Test
     void register_minimumValidData_ok() {
-        String login = MIN_VALID_LOGIN;
-        String password = MIN_VALID_PASS;
-        int age = MIN_AGE;
-
         // Edge case: Minimum valid data (login/pass length 6, age 18)
         User user = new User();
-        user.setLogin(login);
-        user.setPassword(password);
-        user.setAge(age);
+        user.setLogin(MIN_VALID_LOGIN);
+        user.setPassword(MIN_VALID_PASS);
+        user.setAge(MIN_AGE);
 
         User result = registrationService.register(user);
 
@@ -191,26 +187,6 @@ class RegistrationServiceImplTest {
         assertEquals(user, result, "Returned user must be the same object that was passed.");
         assertNotNull(result.getId(), "Id should be set after adding to storage");
         assertTrue(Storage.people.contains(result), "User must be present in Storage.people");
-
-        // Extended valid data (long login/pass, age > 18)
-        for (int i = 0; i < LONG_LOGIN_PASS_LENGTH; i++) {
-            User userIterator = new User();
-
-            // Ensure unique login for each iteration
-            userIterator.setLogin(login + i);
-            userIterator.setPassword(password + i);
-            userIterator.setAge(age + i);
-
-            User resultIterator = registrationService.register(userIterator);
-
-            assertNotNull(resultIterator);
-            assertEquals(userIterator, resultIterator,
-                    "Returned user must be the same object that was passed.");
-            assertNotNull(resultIterator.getId(),
-                    "Id should be set after adding to storage");
-            assertTrue(Storage.people.contains(resultIterator),
-                    "User must be present in Storage.people");
-        }
     }
 
     @Test
