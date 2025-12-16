@@ -93,8 +93,9 @@ class RegistrationServiceImplTest {
         );
         assertTrue(expected.getMessage().contains("Login cannot be null or empty."));
 
-        for (int i = 0; i < MIN_LOGIN_PASS_LENGTH; i++) {
-            user.setLogin(login + i);
+        for (int i = 0; i < MIN_LOGIN_PASS_LENGTH - 1; i++) {
+            login += i;
+            user.setLogin(login);
             InvalidRegistrationDataException expectedIteration = assertThrows(
                     InvalidRegistrationDataException.class,
                     () -> registrationService.register(user)
@@ -118,9 +119,11 @@ class RegistrationServiceImplTest {
         );
         assertTrue(expected.getMessage().contains("Password cannot be null or empty."));
 
-        for (int i = 0; i < MIN_LOGIN_PASS_LENGTH; i++) {
-            user.setLogin(login + i);
-            user.setPassword(password + i);
+        for (int i = 0; i < MIN_LOGIN_PASS_LENGTH - 1; i++) {
+            login += i;
+            password += i;
+            user.setLogin(login);
+            user.setPassword(password);
             InvalidRegistrationDataException expectedIteration = assertThrows(
                     InvalidRegistrationDataException.class,
                     () -> registrationService.register(user)
@@ -167,7 +170,7 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void register_validOrExtendedValidLoginPasswordAge_Ok() {
+    void register_minimumValidData_ok() {
         String login = MIN_VALID_LOGIN;
         String password = MIN_VALID_PASS;
         int age = MIN_AGE;
@@ -193,6 +196,37 @@ class RegistrationServiceImplTest {
             userIterator.setLogin(login + i);
             userIterator.setPassword(password + i);
             userIterator.setAge(age + i);
+
+            User resultIterator = registrationService.register(userIterator);
+
+            assertNotNull(resultIterator);
+            assertEquals(userIterator, resultIterator,
+                    "Returned user must be the same object that was passed.");
+            assertNotNull(resultIterator.getId(),
+                    "Id should be set after adding to storage");
+            assertTrue(Storage.people.contains(resultIterator),
+                    "User must be present in Storage.people");
+        }
+    }
+
+    @Test
+    void register_extendedValidLoginPasswordAge_Ok() {
+        String login = MIN_VALID_LOGIN;
+        String password = MIN_VALID_PASS;
+        int age = MIN_AGE;
+
+        // Extended valid data (long login/pass, age > 18)
+        for (int i = 0; i < LONG_LOGIN_PASS_LENGTH; i++) {
+            login += i;
+            password += i;
+            age += i;
+
+            User userIterator = new User();
+
+            // Ensure unique login for each iteration
+            userIterator.setLogin(login);
+            userIterator.setPassword(password);
+            userIterator.setAge(age);
 
             User resultIterator = registrationService.register(userIterator);
 
