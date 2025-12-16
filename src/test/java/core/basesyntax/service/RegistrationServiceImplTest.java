@@ -9,11 +9,9 @@ import core.basesyntax.dao.StorageDao;
 import core.basesyntax.dao.StorageDaoImpl;
 import core.basesyntax.db.Storage;
 import core.basesyntax.model.User;
-import core.basesyntax.service.exceptions.InvalidRegistrationDataException;
-import core.basesyntax.service.exceptions.UserAlreadyExistsException;
+import core.basesyntax.service.exceptions.RegistrationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class RegistrationServiceImplTest {
@@ -29,11 +27,6 @@ class RegistrationServiceImplTest {
         registrationService = new RegistrationServiceImpl();
     }
 
-    @BeforeEach
-    void setUp() {
-        Storage.people.clear();
-    }
-
     @AfterEach
     void tearDown() {
         Storage.people.clear();
@@ -41,8 +34,8 @@ class RegistrationServiceImplTest {
 
     @Test
     void register_nullInput_notOk() {
-        InvalidRegistrationDataException expected = assertThrows(
-                InvalidRegistrationDataException.class,
+        RegistrationException expected = assertThrows(
+                RegistrationException.class,
                 () -> registrationService.register(null)
         );
         assertTrue(expected.getMessage().contains("User object cannot be null."));
@@ -52,8 +45,8 @@ class RegistrationServiceImplTest {
     void register_nullLogin_notOk() {
         User user = new User();
         user.setLogin(null);
-        InvalidRegistrationDataException expected = assertThrows(
-                InvalidRegistrationDataException.class,
+        RegistrationException expected = assertThrows(
+                RegistrationException.class,
                 () -> registrationService.register(user)
         );
         assertTrue(expected.getMessage().contains("Login cannot be null or empty."));
@@ -64,8 +57,8 @@ class RegistrationServiceImplTest {
         User user = new User();
         user.setLogin(MIN_VALID_LOGIN);
         user.setPassword(null);
-        InvalidRegistrationDataException expected = assertThrows(
-                InvalidRegistrationDataException.class,
+        RegistrationException expected = assertThrows(
+                RegistrationException.class,
                 () -> registrationService.register(user)
         );
         assertTrue(expected.getMessage().contains("Password cannot be null or empty."));
@@ -77,8 +70,8 @@ class RegistrationServiceImplTest {
         user.setLogin(MIN_VALID_LOGIN);
         user.setPassword(MIN_VALID_LOGIN);
         user.setAge(null);
-        InvalidRegistrationDataException expected = assertThrows(
-                InvalidRegistrationDataException.class,
+        RegistrationException expected = assertThrows(
+                RegistrationException.class,
                 () -> registrationService.register(user)
         );
         assertTrue(expected.getMessage().contains("Age cannot be null."));
@@ -89,8 +82,8 @@ class RegistrationServiceImplTest {
         String login = "";
         User user = new User();
         user.setLogin(login);
-        InvalidRegistrationDataException expected = assertThrows(
-                InvalidRegistrationDataException.class,
+        RegistrationException expected = assertThrows(
+                RegistrationException.class,
                 () -> registrationService.register(user)
         );
         assertTrue(expected.getMessage().contains("Login cannot be null or empty."));
@@ -98,8 +91,8 @@ class RegistrationServiceImplTest {
         for (int i = 0; i < MIN_LOGIN_PASS_LENGTH - 1; i++) {
             login += i;
             user.setLogin(login);
-            InvalidRegistrationDataException expectedIteration = assertThrows(
-                    InvalidRegistrationDataException.class,
+            RegistrationException expectedIteration = assertThrows(
+                    RegistrationException.class,
                     () -> registrationService.register(user)
             );
             assertTrue(expectedIteration.getMessage().contains("Login must have at least"));
@@ -115,8 +108,8 @@ class RegistrationServiceImplTest {
         user.setLogin(login);
         user.setPassword(password);
 
-        InvalidRegistrationDataException expected = assertThrows(
-                InvalidRegistrationDataException.class,
+        RegistrationException expected = assertThrows(
+                RegistrationException.class,
                 () -> registrationService.register(user)
         );
         assertTrue(expected.getMessage().contains("Password cannot be null or empty."));
@@ -126,8 +119,8 @@ class RegistrationServiceImplTest {
             password += i;
             user.setLogin(login);
             user.setPassword(password);
-            InvalidRegistrationDataException expectedIteration = assertThrows(
-                    InvalidRegistrationDataException.class,
+            RegistrationException expectedIteration = assertThrows(
+                    RegistrationException.class,
                     () -> registrationService.register(user)
             );
             assertTrue(expectedIteration.getMessage().contains("Password must have at least"));
@@ -142,8 +135,8 @@ class RegistrationServiceImplTest {
         for (int i = -2; i < MIN_AGE; i++) {
             user.setLogin(MIN_VALID_LOGIN + i);
             user.setAge(i);
-            InvalidRegistrationDataException expected = assertThrows(
-                    InvalidRegistrationDataException.class,
+            RegistrationException expected = assertThrows(
+                    RegistrationException.class,
                     () -> registrationService.register(user)
             );
             assertTrue(expected.getMessage().contains("Invalid age:"));
@@ -166,8 +159,8 @@ class RegistrationServiceImplTest {
         assertNotNull(result.getId(), "Id should be set after adding to storage");
         assertTrue(Storage.people.contains(result), "User must be present in Storage.people");
 
-        UserAlreadyExistsException expected = assertThrows(
-                UserAlreadyExistsException.class,
+        RegistrationException expected = assertThrows(
+                RegistrationException.class,
                 () -> registrationService.register(user)
         );
         assertTrue(expected.getMessage().contains("already exists"));
